@@ -1,0 +1,24 @@
+[package]
+name = "inter-struct-codegen"
+description = "Proc macro codegen crate for merge-struct."
+version = "0.1.0"
+authors = ["Arne Beer <contact@arne.beer>"]
+homepage = "https://github.com/nukesor/inter-struct"
+repository = "https://github.com/nukesor/inter-struct"
+documentation = "https://docs.rs/inter-struct/"
+license = "MIT"
+keywords = ["library", "merge", "struct", "macro"]
+edition = "2021"
+
+[lib]
+proc-macro = true
+
+[features]
+# This flag is for debugging only!
+debug = []
+
+[dependencies]
+syn = { version = "1", features = ["full"] }
+quote = "1"
+proc-macro2 = "1"
+proc-macro-error = "1"

@@ -27,10 +27,6 @@ It's not trivial to implement code for two structs in the same codebase.
 pub trait StructMerge<Src> {
     /// Merge the given struct into self.
     fn merge(&mut self, src: Src);
-
-    /// Nearly the same as `merge`, but any `Self::Option<T>` fields will only get merged, if the
-    /// value of the field is `None`.
-    fn merge_soft(&mut self, src: Src);
 }
 ```
 

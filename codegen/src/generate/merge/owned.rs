@@ -2,11 +2,10 @@ use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 use syn::Field;
 
-use super::*;
-use crate::{
-    generate::{determine_field_type, FieldType},
-    Parameters,
-};
+use crate::generate::types::*;
+
+use crate::generate::field::*;
+use crate::Parameters;
 
 /// Generate the implementation of [inter_struct::merge::StructMerge] for given structs.
 pub(crate) fn impl_owned(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {

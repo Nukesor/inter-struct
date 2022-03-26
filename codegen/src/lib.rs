@@ -9,6 +9,8 @@ use syn::{parse_macro_input, Expr, ItemStruct, Path};
 macro_rules! err {
     ($span:expr, $($text:expr),*) => {
         {
+            #[allow(unused_imports)]
+            use syn::spanned::Spanned;
             let message = format!($($text,)*);
             let span = $span.span();
             quote::quote_spanned!( span => compile_error!(#message); )

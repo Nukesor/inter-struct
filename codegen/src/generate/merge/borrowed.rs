@@ -2,11 +2,9 @@ use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 use syn::Field;
 
-use super::*;
-use crate::{
-    generate::{determine_field_type, FieldType},
-    Parameters,
-};
+use crate::generate::field::*;
+use crate::generate::types::*;
+use crate::Parameters;
 
 /// Generate the implementation of [inter_struct::merge::StructMergeRef] for given structs.
 pub(crate) fn impl_borrowed(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {

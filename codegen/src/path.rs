@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use proc_macro2::TokenStream;
 #[cfg(feature = "debug")]
 use quote::ToTokens;
-use syn::{spanned::Spanned, Expr, ExprLit, ItemStruct, Lit, Path};
+use syn::{Expr, ExprLit, ItemStruct, Lit, Path};
 
 /// Extract the input paths from the macro arguments.
 ///

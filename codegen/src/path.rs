@@ -5,6 +5,8 @@ use proc_macro2::TokenStream;
 use quote::ToTokens;
 use syn::{Expr, ExprLit, ItemStruct, Lit, Path};
 
+use crate::error::*;
+
 /// Extract the input paths from the macro arguments.
 ///
 /// Both, a single path and an array of paths is supported.

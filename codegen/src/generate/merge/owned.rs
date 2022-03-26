@@ -2,9 +2,9 @@ use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 use syn::Field;
 
-use crate::generate::types::*;
-
+use crate::error::*;
 use crate::generate::field::*;
+use crate::generate::types::*;
 use crate::Parameters;
 
 /// Generate the implementation of [inter_struct::merge::StructMerge] for given structs.

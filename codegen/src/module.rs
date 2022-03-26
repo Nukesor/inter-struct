@@ -3,6 +3,8 @@ use std::path::PathBuf;
 use proc_macro2::TokenStream;
 use syn::{spanned::Spanned, Ident, Item, ItemStruct, Path, Token};
 
+use crate::error::*;
+
 /// This function takes a path to a struct and returns the AST of that struct.
 ///
 /// There is no easy way to do module resolution during this stage of the compilation.

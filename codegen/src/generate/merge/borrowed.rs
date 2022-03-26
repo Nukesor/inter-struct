@@ -2,6 +2,7 @@ use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 use syn::Field;
 
+use crate::error::*;
 use crate::generate::field::*;
 use crate::generate::types::*;
 use crate::Parameters;

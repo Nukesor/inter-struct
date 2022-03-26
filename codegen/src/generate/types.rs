@@ -1,5 +1,4 @@
 use quote::ToTokens;
-
 use syn::Type;
 
 /// A small helper macro, which compares the token streams of two types and enforces their

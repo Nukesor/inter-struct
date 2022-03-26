@@ -1,6 +1,8 @@
 use proc_macro2::TokenStream;
 use syn::{GenericArgument, PathArguments, Type};
 
+use crate::error::*;
+
 /// Internal representation of parsed types
 ///
 /// We either expect fields to have a generic type `T` or `Option<T>`.

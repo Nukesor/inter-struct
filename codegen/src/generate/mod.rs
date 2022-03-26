@@ -1,12 +1,14 @@
 use proc_macro2::TokenStream;
 use syn::Fields;
 
+use crate::error::err;
 use crate::{Mode, Parameters};
 
 /// Some helper functions and macros, that need to be declared before the actual generaction code.
 mod field;
 mod types;
 
+pub mod into;
 pub mod merge;
 
 /// Return a Tokenstream that contains the implementation for a given trait,

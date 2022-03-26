@@ -18,6 +18,7 @@ mod debug;
 enum Mode {
     Merge,
     MergeRef,
+    Into,
 }
 
 pub(crate) struct Parameters {
@@ -54,7 +55,7 @@ pub(crate) struct Parameters {
 ///
 /// Eiter a single path or a list of paths can be specified.
 /// The traits will then be implemented for each given target struct.
-#[proc_macro_derive(InterStruct, attributes(merge, merge_ref))]
+#[proc_macro_derive(InterStruct, attributes(merge, merge_ref, into))]
 pub fn inter_struct(struct_ast: TokenStream) -> TokenStream {
     // Parse the main macro input as a struct.
     // We work on a clone of the struct ast.
@@ -82,6 +83,7 @@ pub fn inter_struct(struct_ast: TokenStream) -> TokenStream {
         let mode = match attribute_name.as_str() {
             "merge" => Mode::Merge,
             "merge_ref" => Mode::MergeRef,
+            "into" => Mode::Into,
             _ => continue,
         };
 
@@ -95,6 +97,8 @@ pub fn inter_struct(struct_ast: TokenStream) -> TokenStream {
     // Merge all generated pieces of the code with the original unaltered struct.
     let mut tokens = TokenStream::new();
     tokens.extend(all_impls.into_iter().map(TokenStream::from));
+
+    //println!("{}", tokens.to_string());
 
     tokens
 }

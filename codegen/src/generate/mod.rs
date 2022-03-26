@@ -56,5 +56,6 @@ pub(crate) fn generate_impl(mode: &Mode, params: Parameters) -> Result<TokenStre
     match *mode {
         Mode::Merge => Ok(merge::owned::impl_owned(&params, similar_fields)),
         Mode::MergeRef => Ok(merge::borrowed::impl_borrowed(&params, similar_fields)),
+        Mode::Into => Ok(into::normal::impl_into(&params, similar_fields)),
     }
 }

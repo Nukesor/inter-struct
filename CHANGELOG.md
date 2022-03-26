@@ -30,5 +30,6 @@ It's purpose is to implement traits between various structs.
 
 #### Derive Macro Attributes:
 
-- `inter_struct` macro for generating the `StructMergeInto` and thereby the respective `StructMerge` implementations.
-- `inter_struct_ref` macro for generating the `StructMergeInto` Refand thereby the respective `StructMergeRef` implementations.
+- `merge` attribute for generating `StructMergeInto` and the auto-implemented `StructMerge` implementations.
+- `merge_ref` attribute for generating the `StructMergeRefInto` and the auto-implemented `StructMergeRef` implementations.
+- `into` attribute for generating `std::convert::From` and the auto-implemented `std::convert::Into` implementations.

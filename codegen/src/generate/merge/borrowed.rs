@@ -12,7 +12,7 @@ pub(crate) fn impl_borrowed(params: &Parameters, fields: Vec<(Field, Field)>) ->
     let mut functions_tokens = TokenStream::new();
 
     // Add `merge_ref` impl.
-    let stream = merge_ref(params, fields.clone());
+    let stream = merge_ref(params, fields);
     functions_tokens.extend(vec![stream]);
 
     // Surround functions with `impl` block.

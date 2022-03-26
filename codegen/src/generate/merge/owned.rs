@@ -12,7 +12,7 @@ pub(crate) fn impl_owned(params: &Parameters, fields: Vec<(Field, Field)>) -> To
     let mut functions_tokens = TokenStream::new();
 
     // Add `merge` impl.
-    let stream = merge(params, fields.clone());
+    let stream = merge(params, fields);
     functions_tokens.extend(vec![stream]);
 
     // Surround functions with `impl` block.

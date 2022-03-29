@@ -9,26 +9,26 @@ use crate::Parameters;
 
 /// Generate the [std::convert::From] for given structs.
 pub(crate) fn impl_into(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {
-    let mut functions_tokens = TokenStream::new();
+    let mut initializer_tokens = TokenStream::new();
 
-    // Add `merge_ref` impl.
-    let stream = merge_ref(params, fields);
-    functions_tokens.extend(vec![stream]);
+    // Add `into` impl.
+    let stream = into(params, fields);
+    initializer_tokens.extend(vec![stream]);
 
-    // Surround functions with `impl` block.
+    // Surround the function with the correct Default  `impl` block.
     let src_ident = &params.src_struct.ident;
     let target_path = &params.target_path;
     quote! {
         impl std::convert::From<#src_ident> for #target_path {
-            #functions_tokens
+            fn from(src: #src_ident) -> Self {
+                #initializer_tokens
+            }
         }
     }
 }
 
-/// Generate the [inter_struct::merge::StructMergeRef::merge_ref] function for given structs.
-///
-/// All fields must implement `Clone`.
-fn merge_ref(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {
+/// Generate the [std::convert::From] function body for given structs.
+fn into(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {
     let mut assignments = TokenStream::new();
 
     for (src_field, dest_field) in fields {
@@ -135,14 +135,11 @@ fn merge_ref(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {
         assignments.extend(vec![snippet]);
     }
 
-    let src_ident = &params.src_struct.ident;
     let target_path = &params.target_path;
     let assignment_code = assignments.to_token_stream();
     quote! {
-        fn from(src: #src_ident) -> Self {
-            #target_path {
-                #assignment_code
-            }
+        #target_path {
+            #assignment_code
         }
     }
 }

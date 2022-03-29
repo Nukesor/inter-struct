@@ -3,9 +3,11 @@
 use inter_struct::InterStruct;
 
 mod into;
+mod into_default;
 
 #[derive(InterStruct)]
 #[into("crate::into_test::IntoStruct")]
+#[into_default("crate::into_test::IntoDefaultStruct")]
 pub struct FromStruct {
     pub normal: String,
     pub optional: Option<String>,
@@ -28,4 +30,13 @@ impl FromStruct {
 pub struct IntoStruct {
     pub normal: String,
     pub optional: Option<String>,
+}
+
+/// A struct with a few additional fields that should be populated by their [Default] values.
+#[derive(Default)]
+pub struct IntoDefaultStruct {
+    pub normal: String,
+    pub optional: Option<String>,
+    pub normal_additional: String,
+    pub optional_additional: Option<String>,
 }

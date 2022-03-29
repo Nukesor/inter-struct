@@ -33,3 +33,5 @@ It's purpose is to implement traits between various structs.
 - `merge` attribute for generating `StructMergeInto` and the auto-implemented `StructMerge` implementations.
 - `merge_ref` attribute for generating the `StructMergeRefInto` and the auto-implemented `StructMergeRef` implementations.
 - `into` attribute for generating `std::convert::From` and the auto-implemented `std::convert::Into` implementations.
+- `into_default` attribute for generating `std::convert::From` and the auto-implemented `std::convert::Into` implementations.
+    This populates all non-matching fields by calling `Default::default` for the target struct.

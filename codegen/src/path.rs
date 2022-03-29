@@ -20,7 +20,7 @@ pub fn parse_input_paths(args: Expr) -> Result<Vec<Path>, TokenStream> {
         #[cfg(feature = "debug")]
         println!("Expected group found: {:?}", args.to_token_stream());
         #[cfg(feature = "debug")]
-        crate::debug::print_expr_type(args);
+        crate::debug::print_expr_type(args.clone());
 
         return Err(err!(args, "Encountered unknown error while parsing args."));
     };

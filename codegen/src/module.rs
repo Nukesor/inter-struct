@@ -59,21 +59,33 @@ pub fn get_struct_from_path(root_path: PathBuf, path: Path) -> Result<ItemStruct
     };
 
     // If the last module was a directory, we have to access it's `mod.rs` file.
-    if file_path.is_dir() {
+    if file_path.is_dir() && file_path.join("mod.rs").exists() {
         file_path.push("mod.rs");
+    } else if file_path.is_dir() && file_path.join("lib.rs").exists() {
+        file_path.push("lib.rs");
+    } else if file_path.is_dir() && file_path.join("main.rs").exists() {
+        file_path.push("main.rs");
+    } else if file_path.is_dir() {
+        return Err(err!(
+            path_span,
+            "Couldn't find suitable module in directory {:?}",
+            file_path
+        ));
     }
 
     // Read and parse the file.
     let file_content = ok_or_err_return!(
         std::fs::read_to_string(&file_path),
         path_span,
-        "Failed to open file: {:?}"
+        "Failed to open file {:?}: {:?}",
+        file_path
     );
 
     let file_ast = ok_or_err_return!(
         syn::parse_file(&file_content),
         path_span,
-        "Failed to parse file: {:?}"
+        "Failed to parse file {:?}: {:?}",
+        file_path
     );
 
     for item in file_ast.items.into_iter() {

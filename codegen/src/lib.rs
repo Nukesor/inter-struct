@@ -31,7 +31,7 @@ pub(crate) struct Parameters {
 /// Implement various InterStruct traits on this struct.
 ///
 /// `struct.rs`
-/// ```ignore
+/// ```rust, ignore
 /// use inter_struct::prelude::*;
 ///
 /// pub struct Target {
@@ -42,9 +42,9 @@ pub(crate) struct Parameters {
 ///     pub test: String,
 /// }
 ///
-/// #[derive[InterStruct]]
+/// #[derive(InterStruct)]
 /// #[merge_ref(["crate::structs::Target", "crate:structs::OtherTarget"])]
-/// #[merge("crate::structs::Target"]
+/// #[merge("crate::structs::YetAnotherTarget")]
 /// pub struct Test {
 ///     pub test: String,
 /// }

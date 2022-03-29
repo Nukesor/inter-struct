@@ -1,9 +1,9 @@
 pub struct InNormalFile {
-    pub field: &'static str,
+    pub field: String,
 }
 
 pub mod submod {
     pub struct SubModInNormalFile {
-        pub field: &'static str,
+        pub field: String,
     }
 }

@@ -16,7 +16,7 @@ It's not trivial to implement code for two structs in the same codebase.
 - [x] StructMerge
 - [x] StructMergeRef
 - [x] Into - A standard `From/Into` impl between two structs.
-- [ ] IntoDefault - `From/Into`, but use `Default` on the target for unknown fields.
+- [x] IntoDefault - `From/Into`, but use `Default` on the target for unknown fields.
 
 ### StructMerge
 

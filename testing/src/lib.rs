@@ -5,3 +5,9 @@ pub mod path;
 pub struct RootLevelFile {
     pub field: String,
 }
+
+/// A struct with less, but otherwise identical fields.
+pub struct IntoStruct {
+    pub normal: String,
+    pub optional: Option<String>,
+}

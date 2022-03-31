@@ -14,11 +14,11 @@ edition = "2021"
 maintenance = { status = "actively-developed" }
 
 [features]
-# This flag is for debugging only!
+# This flag is for debugging purposes only!
 debug = []
-
-[dependencies]
-inter-struct-codegen = { version = "0.1", path = "codegen", features = [] }
 
 [workspace]
 members = ["codegen", "testing"]
+
+[dependencies]
+inter-struct-codegen = { version = "0.1", path = "codegen", features = [] }

@@ -123,7 +123,7 @@ fn into(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {
                         inner_target_type,
                         "",
                         quote! {
-                            #dest_field_ident: Some(src.#src_field_ident.clone()),
+                            #dest_field_ident: Some(src.#src_field_ident),
                         }
                     )
                 }

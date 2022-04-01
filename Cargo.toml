@@ -15,10 +15,10 @@ maintenance = { status = "actively-developed" }
 
 [features]
 # This flag is for debugging purposes only!
-debug = []
+debug = ["inter-struct-codegen/debug"]
 
 [workspace]
 members = ["codegen", "testing"]
 
 [dependencies]
-inter-struct-codegen = { version = "0.1", path = "codegen", features = [] }
+inter-struct-codegen = { version = "0.1", path = "codegen" }

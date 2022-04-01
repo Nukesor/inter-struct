@@ -100,7 +100,8 @@ pub fn inter_struct(struct_ast: TokenStream) -> TokenStream {
     let mut tokens = TokenStream::new();
     tokens.extend(all_impls.into_iter().map(TokenStream::from));
 
-    //println!("{}", tokens.to_string());
+    #[cfg(feature = "debug")]
+    println!("{}", tokens.to_string());
 
     tokens
 }

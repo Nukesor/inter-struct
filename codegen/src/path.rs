@@ -44,21 +44,13 @@ pub fn parse_input_paths(args: Expr) -> Result<Vec<Path>, TokenStream> {
 
     match *expr_paren.expr {
         // Handle the first case of a single string containing a path.
-        Expr::Lit(expr) => {
-            #[cfg(feature = "debug")]
-            println!("Found path expr: {:?}", expr.to_token_stream());
-            lit_to_path(expr).map(|path| vec![path])
-        }
+        Expr::Lit(expr) => lit_to_path(expr).map(|path| vec![path]),
         // Handle the caes of an array of strings, containing paths.
         Expr::Array(array) => {
             let mut paths = vec![];
-            #[cfg(feature = "debug")]
-            println!("Found path expr array: {:?}", array.to_token_stream());
             for expr in array.elems {
                 match expr {
                     Expr::Lit(expr) => {
-                        #[cfg(feature = "debug")]
-                        println!("Path expr in array: {:?}", expr.to_token_stream());
                         let path = lit_to_path(expr)?;
                         paths.push(path);
                     }
@@ -69,15 +61,11 @@ pub fn parse_input_paths(args: Expr) -> Result<Vec<Path>, TokenStream> {
             }
             Ok(paths)
         }
-        _ => {
-            #[cfg(feature = "debug")]
-            println!("Found no path expr: {:?}", expr_paren.to_token_stream());
-            Err(err!(
-                expr_paren,
-                "inter_struct's macro parameters should be either a single path {} ",
-                "or a vector of paths as str, such as '[\"crate::your::path\"]'."
-            ))
-        }
+        _ => Err(err!(
+            expr_paren,
+            "inter_struct's macro parameters should be either a single path {} ",
+            "or a vector of paths as str, such as '[\"crate::your::path\"]'."
+        )),
     }
 }
 

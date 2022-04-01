@@ -43,8 +43,10 @@ pub(crate) fn generate_impl(mode: &Mode, params: Parameters) -> Result<TokenStre
 
     let mut similar_fields = Vec::new();
     for src_field in src_fields.named {
+        let src_ident = src_field.ident.clone().unwrap();
         for target_field in target_fields.named.clone() {
-            if src_field.ident == target_field.ident {
+            let target_ident = target_field.clone().ident.unwrap();
+            if src_ident == target_ident {
                 similar_fields.push((src_field.clone(), target_field));
             }
         }

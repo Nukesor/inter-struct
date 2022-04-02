@@ -4,13 +4,15 @@ use inter_struct::prelude::*;
 #[derive(InterStruct)]
 #[merge("crate::MergeStruct")]
 pub struct FromStruct {
-    pub normal: String,
+    pub normal: i32,
     pub optional: i32,
+    pub optional_optional: Option<Option<i32>>,
 }
 
 pub struct MergeStruct {
     pub normal: String,
     pub optional: Option<String>,
+    pub optional_optional: Option<Option<String>>,
 }
 
 fn main() {}

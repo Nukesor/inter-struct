@@ -30,9 +30,9 @@ pub(crate) fn impl_borrowed(params: &Parameters, fields: Vec<(Field, Field)>) ->
 /// All fields must implement `Clone`.
 fn merge_ref(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {
     let mut merge_code = TokenStream::new();
-    for (src_field, dest_field) in fields {
+    for (src_field, target_field) in fields {
         let src_field_ident = src_field.ident;
-        let dest_field_ident = dest_field.ident;
+        let target_field_ident = target_field.ident;
 
         // Find out, whether the fields are optional or not.
         let src_field_type = match determine_field_type(src_field.ty) {
@@ -42,7 +42,7 @@ fn merge_ref(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {
                 continue;
             }
         };
-        let target_field_type = match determine_field_type(dest_field.ty) {
+        let target_field_type = match determine_field_type(target_field.ty) {
             Ok(field) => field,
             Err(err) => {
                 merge_code.extend(vec![err]);
@@ -58,7 +58,7 @@ fn merge_ref(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {
                     target_type,
                     "",
                     quote! {
-                        target.#dest_field_ident = self.#src_field_ident.clone();
+                        target.#target_field_ident = self.#src_field_ident.clone();
                     }
                 )
             }
@@ -75,7 +75,7 @@ fn merge_ref(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {
                     "Inner ",
                     quote! {
                         if let Some(value) = self.#src_field_ident.as_ref() {
-                            target.#dest_field_ident = value.clone();
+                            target.#target_field_ident = value.clone();
                         }
                     }
                 )
@@ -92,7 +92,7 @@ fn merge_ref(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {
                     target_type,
                     "",
                     quote! {
-                        self.#dest_field_ident = Some(src.#src_field_ident.clone());
+                        self.#target_field_ident = Some(src.#src_field_ident.clone());
                     }
                 )
             }
@@ -112,16 +112,26 @@ fn merge_ref(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {
             ) => {
                 // Handling the (Option<T>, Option<T>) case
                 if is_equal_type(&inner_src_type, &inner_target_type) {
-                    quote! {
-                        target.#dest_field_ident = self.#src_field_ident.clone();
-                    }
+                    equal_type_or_err!(
+                        inner_src_type,
+                        inner_target_type,
+                        "",
+                        quote! {
+                            target.#target_field_ident = self.#src_field_ident.clone();
+                        }
+                    )
                 // Handling the (Option<Option<<T>>, Option<T>) case
                 } else if is_equal_type(&inner_src_type, &outer_target_type) {
-                    quote! {
-                        if let Some(value) = self.#src_field_ident.as_ref() {
-                            target.#dest_field_ident = value.clone();
+                    equal_type_or_err!(
+                        inner_src_type,
+                        outer_target_type,
+                        "",
+                        quote! {
+                            if let Some(value) = self.#src_field_ident.as_ref() {
+                                target.#target_field_ident = value.clone();
+                            }
                         }
-                    }
+                    )
                 // Handling the (Option<<T>, Option<Option<T>)> case
                 } else {
                     equal_type_or_err!(
@@ -129,7 +139,7 @@ fn merge_ref(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {
                         inner_target_type,
                         "",
                         quote! {
-                            target.#dest_field_ident = Some(self.#src_field_ident.clone());
+                            target.#target_field_ident = Some(self.#src_field_ident.clone());
                         }
                     )
                 }

@@ -28,9 +28,9 @@ pub(crate) fn impl_owned(params: &Parameters, fields: Vec<(Field, Field)>) -> To
 /// Generate the [inter_struct::merge::StructMerge::merge] function for the given structs.
 fn merge(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {
     let mut merge_code = TokenStream::new();
-    for (src_field, dest_field) in fields {
+    for (src_field, target_field) in fields {
         let src_field_ident = src_field.ident;
-        let dest_field_ident = dest_field.ident;
+        let target_field_ident = target_field.ident;
 
         // Find out, whether the fields are optional or not.
         let src_field_type = match determine_field_type(src_field.ty) {
@@ -40,7 +40,7 @@ fn merge(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {
                 continue;
             }
         };
-        let dest_field_type = match determine_field_type(dest_field.ty) {
+        let target_field_type = match determine_field_type(target_field.ty) {
             Ok(field) => field,
             Err(err) => {
                 merge_code.extend(vec![err]);
@@ -48,26 +48,51 @@ fn merge(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {
             }
         };
 
-        let snippet = match (src_field_type, dest_field_type) {
+        let snippet = match (src_field_type, target_field_type) {
             // Both fields have the same type
-            (FieldType::Normal(_), FieldType::Normal(_)) => {
-                quote! {
-                    dest.#dest_field_ident = self.#src_field_ident;
-                }
+            (FieldType::Normal(src_type), FieldType::Normal(target_type)) => {
+                equal_type_or_err!(
+                    src_type,
+                    target_type,
+                    "",
+                    quote! {
+                        target.#target_field_ident = self.#src_field_ident;
+                    }
+                )
             }
             // The src is optional and needs to be `Some(T)` to be merged.
-            (FieldType::Optional { .. }, FieldType::Normal(_)) => {
-                quote! {
-                    if let Some(value) = self.#src_field_ident {
-                        dest.#dest_field_ident = value;
+            (
+                FieldType::Optional {
+                    inner: src_type, ..
+                },
+                FieldType::Normal(target_type),
+            ) => {
+                equal_type_or_err!(
+                    src_type,
+                    target_type,
+                    "",
+                    quote! {
+                        if let Some(value) = self.#src_field_ident {
+                            target.#target_field_ident = value;
+                        }
                     }
-                }
+                )
             }
-            // The dest is optional and needs to be wrapped in `Some(T)` to be merged.
-            (FieldType::Normal(_), FieldType::Optional { .. }) => {
-                quote! {
-                    dest.#dest_field_ident = Some(self.#src_field_ident);
-                }
+            // The target is optional and needs to be wrapped in `Some(T)` to be merged.
+            (
+                FieldType::Normal(src_type),
+                FieldType::Optional {
+                    inner: target_type, ..
+                },
+            ) => {
+                equal_type_or_err!(
+                    src_type,
+                    target_type,
+                    "",
+                    quote! {
+                        target.#target_field_ident = Some(self.#src_field_ident);
+                    }
+                )
             }
             // Both fields are optional. It can now be either of these:
             // - (Option<T>, Option<T>)
@@ -79,30 +104,40 @@ fn merge(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {
                     outer: outer_src_type,
                 },
                 FieldType::Optional {
-                    inner: inner_dest_type,
-                    outer: outer_dest_type,
+                    inner: inner_target_type,
+                    outer: outer_target_type,
                 },
             ) => {
                 // Handling the (Option<T>, Option<T>) case
-                if is_equal_type(&inner_src_type, &inner_dest_type) {
-                    quote! {
-                        dest.#dest_field_ident = self.#src_field_ident;
-                    }
-                // Handling the (Option<Option<<T>>, Option<T>) case
-                } else if is_equal_type(&inner_src_type, &outer_dest_type) {
-                    quote! {
-                        if let Some(value) = self.#src_field_ident {
-                            dest.#dest_field_ident = value;
+                if is_equal_type(&inner_src_type, &inner_target_type) {
+                    equal_type_or_err!(
+                        inner_src_type,
+                        inner_target_type,
+                        "",
+                        quote! {
+                            target.#target_field_ident = self.#src_field_ident;
                         }
-                    }
+                    )
+                // Handling the (Option<Option<<T>>, Option<T>) case
+                } else if is_equal_type(&inner_src_type, &outer_target_type) {
+                    equal_type_or_err!(
+                        inner_src_type,
+                        outer_target_type,
+                        "",
+                        quote! {
+                            if let Some(value) = self.#src_field_ident {
+                                target.#target_field_ident = value;
+                            }
+                        }
+                    )
                 // Handling the (Option<<T>, Option<Option<T>)> case
                 } else {
                     equal_type_or_err!(
                         outer_src_type,
-                        inner_dest_type,
+                        inner_target_type,
                         "",
                         quote! {
-                            dest.#dest_field_ident = Some(self.#src_field_ident);
+                            target.#target_field_ident = Some(self.#src_field_ident);
                         }
                     )
                 }
@@ -118,7 +153,7 @@ fn merge(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {
 
     let target_path = &params.target_path;
     quote! {
-        fn merge_into(self, dest: &mut #target_path) {
+        fn merge_into(self, target: &mut #target_path) {
             #merge_code
         }
     }

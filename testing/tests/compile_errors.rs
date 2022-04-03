@@ -30,8 +30,8 @@ fn compile_error() {
         .expect("Failed to copy stub lib.rs");
 
     // Uncomment if you want to test a special
-    let single = Some("tests/merge/incompatible_type.rs");
-    //let single = None;
+    //let single = Some("tests/merge/incompatible_type.rs".to_string());
+    let single = None::<String>;
     if let Some(single) = single {
         t.compile_fail(single);
     } else {

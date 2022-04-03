@@ -1,0 +1,17 @@
+error: Type 'i32 cannot be merged into field of type 'String'.
+ --> tests/into/incompatible_type.rs:7:17
+  |
+7 |     pub normal: i32,
+  |                 ^^^
+
+error: Type 'Option < i32 > cannot be merged into field of type 'String'.
+ --> tests/into/incompatible_type.rs:8:19
+  |
+8 |     pub optional: Option<i32>,
+  |                   ^^^^^^
+
+error[E0063]: missing fields `normal` and `optional` in initializer of `IntoStruct`
+ --> tests/into/incompatible_type.rs:5:8
+  |
+5 | #[into("crate::IntoStruct")]
+  |        ^^^^^^^^^^^^^^^^^^^ missing `normal` and `optional`

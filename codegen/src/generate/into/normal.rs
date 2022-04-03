@@ -8,11 +8,15 @@ use crate::generate::types::*;
 use crate::Parameters;
 
 /// Generate the [std::convert::From] for given structs.
-pub(crate) fn impl_into(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {
+pub(crate) fn impl_into(
+    params: &Parameters,
+    fields: Vec<(Field, Field)>,
+    default_impl: bool,
+) -> TokenStream {
     let mut initializer_tokens = TokenStream::new();
 
     // Add `into` impl.
-    let stream = into(params, fields);
+    let stream = into(params, fields, default_impl);
     initializer_tokens.extend(vec![stream]);
 
     // Surround the function with the correct Default  `impl` block.
@@ -28,8 +32,9 @@ pub(crate) fn impl_into(params: &Parameters, fields: Vec<(Field, Field)>) -> Tok
 }
 
 /// Generate the [std::convert::From] function body for given structs.
-fn into(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {
+fn into(params: &Parameters, fields: Vec<(Field, Field)>, default_impl: bool) -> TokenStream {
     let mut assignments = TokenStream::new();
+    let mut errors = TokenStream::new();
 
     for (src_field, target_field) in fields {
         let src_field_ident = src_field.ident;
@@ -51,17 +56,22 @@ fn into(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {
             }
         };
 
-        let snippet = match (src_field_type, target_field_type) {
+        match (src_field_type, target_field_type) {
             // Both fields have the same type
             (FieldType::Normal(src_type), FieldType::Normal(target_type)) => {
-                equal_type_or_err!(
-                    src_type,
-                    target_type,
-                    "",
-                    quote! {
+                if !is_equal_type(&src_type, &target_type) {
+                    errors.extend(vec![err!(
+                        src_type,
+                        "Type '{} cannot be merged into field of type '{}'.",
+                        src_type.to_token_stream(),
+                        target_type.to_token_stream()
+                    )]);
+                } else {
+                    let snippet = quote! {
                         #target_field_ident: src.#src_field_ident,
-                    }
-                )
+                    };
+                    assignments.extend(vec![snippet]);
+                }
             }
             // The src is optional and needs to be `Some(T)` to be merged.
             (
@@ -70,10 +80,10 @@ fn into(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {
                 },
                 FieldType::Normal(_),
             ) => {
-                err!(
+                errors.extend(vec![err!(
                     src_type,
                     "Inter-struct cannot 'into' an optional into a non-optional value."
-                )
+                )]);
             }
             // The target is optional and needs to be wrapped in `Some(T)` to be merged.
             (
@@ -82,14 +92,19 @@ fn into(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {
                     inner: target_type, ..
                 },
             ) => {
-                equal_type_or_err!(
-                    src_type,
-                    target_type,
-                    "",
-                    quote! {
+                if !is_equal_type(&src_type, &target_type) {
+                    errors.extend(vec![err!(
+                        src_type,
+                        "Type '{} cannot be merged into field of type '{}'.",
+                        src_type.to_token_stream(),
+                        target_type.to_token_stream()
+                    )]);
+                } else {
+                    let snippet = quote! {
                         #target_field_ident: Some(src.#src_field_ident),
-                    }
-                )
+                    };
+                    assignments.extend(vec![snippet]);
+                }
             }
             // Both fields are optional. It can now be either of these:
             // - (Option<T>, Option<T>)
@@ -107,44 +122,64 @@ fn into(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {
             ) => {
                 // Handling the (Option<T>, Option<T>) case
                 if is_equal_type(&inner_src_type, &inner_target_type) {
-                    equal_type_or_err!(
-                        inner_src_type,
-                        inner_target_type,
-                        "",
-                        quote! {
+                    if !is_equal_type(&inner_src_type, &inner_target_type) {
+                        errors.extend(vec![err!(
+                            inner_src_type,
+                            "Type '{} cannot be merged into field of type '{}'.",
+                            inner_src_type.to_token_stream(),
+                            inner_target_type.to_token_stream()
+                        )]);
+                    } else {
+                        let snippet = quote! {
                             #target_field_ident: src.#src_field_ident,
-                        }
-                    )
+                        };
+                        assignments.extend(vec![snippet]);
+                    }
                 // Handling the (src: Option<Option<<T>>, target: Option<T>) case
                 } else if is_equal_type(&inner_src_type, &outer_target_type) {
-                    err!(
+                    errors.extend(vec![err!(
                         inner_src_type,
                         "Inter-struct cannot 'into' an optional into a non-optional value."
-                    )
+                    )]);
                 // Handling the (src: Option<<T>, target: Option<Option<T>)> case
                 } else {
-                    equal_type_or_err!(
-                        outer_src_type,
-                        inner_target_type,
-                        "",
-                        quote! {
+                    if !is_equal_type(&outer_src_type, &inner_target_type) {
+                        errors.extend(vec![err!(
+                            outer_src_type,
+                            "Type '{} cannot be merged into field of type '{}'.",
+                            outer_src_type.to_token_stream(),
+                            inner_target_type.to_token_stream()
+                        )]);
+                    } else {
+                        let snippet = quote! {
                             #target_field_ident: Some(src.#src_field_ident),
-                        }
-                    )
+                        };
+                        assignments.extend(vec![snippet]);
+                    }
                 }
             }
             // Skip anything where either of the fields are invalid
             (FieldType::Invalid, _) | (_, FieldType::Invalid) => continue,
         };
-
-        assignments.extend(vec![snippet]);
     }
 
     let target_path = &params.target_path;
     let assignment_code = assignments.to_token_stream();
+    let error_code = errors.to_token_stream();
+
+    let default_code = if default_impl {
+        quote! {
+            ..#target_path::default()
+        }
+    } else {
+        quote! {}
+    };
+
     quote! {
+        #error_code
         #target_path {
             #assignment_code
+            #default_code
         }
     }
 }

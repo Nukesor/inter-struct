@@ -56,7 +56,6 @@ fn merge_ref(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {
                 equal_type_or_err!(
                     src_type,
                     target_type,
-                    "",
                     quote! {
                         target.#target_field_ident = self.#src_field_ident.clone();
                     }
@@ -72,7 +71,6 @@ fn merge_ref(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {
                 equal_type_or_err!(
                     src_type,
                     target_type,
-                    "Inner ",
                     quote! {
                         if let Some(value) = self.#src_field_ident.as_ref() {
                             target.#target_field_ident = value.clone();
@@ -90,7 +88,6 @@ fn merge_ref(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {
                 equal_type_or_err!(
                     src_type,
                     target_type,
-                    "",
                     quote! {
                         self.#target_field_ident = Some(src.#src_field_ident.clone());
                     }
@@ -115,7 +112,6 @@ fn merge_ref(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {
                     equal_type_or_err!(
                         inner_src_type,
                         inner_target_type,
-                        "",
                         quote! {
                             target.#target_field_ident = self.#src_field_ident.clone();
                         }
@@ -125,7 +121,6 @@ fn merge_ref(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {
                     equal_type_or_err!(
                         inner_src_type,
                         outer_target_type,
-                        "",
                         quote! {
                             if let Some(value) = self.#src_field_ident.as_ref() {
                                 target.#target_field_ident = value.clone();
@@ -137,7 +132,6 @@ fn merge_ref(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {
                     equal_type_or_err!(
                         outer_src_type,
                         inner_target_type,
-                        "",
                         quote! {
                             target.#target_field_ident = Some(self.#src_field_ident.clone());
                         }

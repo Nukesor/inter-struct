@@ -4,12 +4,11 @@ use syn::Type;
 /// A small helper macro, which compares the token streams of two types and enforces their
 /// equality. If they aren't equal, a compiler error will be shown.
 macro_rules! equal_type_or_err {
-    ($src_type:ident, $target_type:ident, $type:expr, $correct_macro:expr) => {
+    ($src_type:ident, $target_type:ident, $correct_macro:expr) => {
         if !is_equal_type(&$src_type, &$target_type) {
             err!(
                 $src_type,
-                "{}Type '{} cannot be merged into field of type '{}'.",
-                $type,
+                "Type '{} cannot be merged into field of type '{}'.",
                 $src_type.to_token_stream(),
                 $target_type.to_token_stream()
             )

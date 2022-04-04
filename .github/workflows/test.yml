@@ -27,7 +27,6 @@ jobs:
             - aarch64-unknown-linux-musl
             - armv7-unknown-linux-musleabihf
             - arm-unknown-linux-musleabihf
-            - x86_64-pc-windows-msvc
             - x86_64-apple-darwin
             - aarch64-apple-ios
         include:
@@ -47,10 +46,6 @@ jobs:
             target: arm-unknown-linux-musleabihf
             cross: true
             strip: false
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
-            cross: false
-            strip: true
           - os: macos-latest
             target: x86_64-apple-darwin
             cross: false

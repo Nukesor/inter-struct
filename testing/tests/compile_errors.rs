@@ -37,6 +37,7 @@ fn compile_error() {
     } else {
         t.compile_fail("tests/into/*.rs");
         t.compile_fail("tests/merge/*.rs");
+        t.compile_fail("tests/merge_ref/*.rs");
         t.compile_fail("tests/path/*.rs");
     }
 }

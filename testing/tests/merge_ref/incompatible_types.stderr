@@ -1,17 +1,17 @@
 error: Type 'i32 cannot be merged into field of type 'String'.
- --> tests/merge/incompatible_type.rs:7:17
+ --> tests/merge_ref/incompatible_types.rs:7:17
   |
 7 |     pub normal: i32,
   |                 ^^^
 
 error: Type 'i32 cannot be merged into field of type 'String'.
- --> tests/merge/incompatible_type.rs:8:19
+ --> tests/merge_ref/incompatible_types.rs:8:19
   |
 8 |     pub optional: i32,
   |                   ^^^
 
 error: Type 'Option < Option < i32 > > cannot be merged into field of type 'Option < String >'.
- --> tests/merge/incompatible_type.rs:9:28
+ --> tests/merge_ref/incompatible_types.rs:9:28
   |
 9 |     pub optional_optional: Option<Option<i32>>,
   |                            ^^^^^^

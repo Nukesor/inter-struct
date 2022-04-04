@@ -1,0 +1,11 @@
+error: Type 'i32 cannot be merged into field of type 'String'.
+ --> tests/merge/incompatible_optional_types.rs:7:24
+  |
+7 |     pub normal: Option<i32>,
+  |                        ^^^
+
+error: Type 'Option < Option < i32 > > cannot be merged into field of type 'String'.
+ --> tests/merge/incompatible_optional_types.rs:8:19
+  |
+8 |     pub optional: Option<Option<i32>>,
+  |                   ^^^^^^

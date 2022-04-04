@@ -135,27 +135,32 @@ fn into(params: &Parameters, fields: Vec<(Field, Field)>, default_impl: bool) ->
                         };
                         assignments.extend(vec![snippet]);
                     }
+
+                    continue;
+                }
+
                 // Handling the (src: Option<Option<<T>>, target: Option<T>) case
-                } else if is_equal_type(&inner_src_type, &outer_target_type) {
+                if is_equal_type(&inner_src_type, &outer_target_type) {
                     errors.extend(vec![err!(
                         inner_src_type,
                         "Inter-struct cannot 'into' an optional into a non-optional value."
                     )]);
+                    continue;
+                }
+
                 // Handling the (src: Option<<T>, target: Option<Option<T>)> case
+                if !is_equal_type(&outer_src_type, &inner_target_type) {
+                    errors.extend(vec![err!(
+                        outer_src_type,
+                        "Type '{} cannot be merged into field of type '{}'.",
+                        outer_src_type.to_token_stream(),
+                        inner_target_type.to_token_stream()
+                    )]);
                 } else {
-                    if !is_equal_type(&outer_src_type, &inner_target_type) {
-                        errors.extend(vec![err!(
-                            outer_src_type,
-                            "Type '{} cannot be merged into field of type '{}'.",
-                            outer_src_type.to_token_stream(),
-                            inner_target_type.to_token_stream()
-                        )]);
-                    } else {
-                        let snippet = quote! {
-                            #target_field_ident: Some(src.#src_field_ident),
-                        };
-                        assignments.extend(vec![snippet]);
-                    }
+                    let snippet = quote! {
+                        #target_field_ident: Some(src.#src_field_ident),
+                    };
+                    assignments.extend(vec![snippet]);
                 }
             }
             // Skip anything where either of the fields are invalid

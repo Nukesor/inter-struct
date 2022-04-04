@@ -5,20 +5,27 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Downloads](https://img.shields.io/github/downloads/nukesor/inter-struct/total.svg)](https://github.com/nukesor/inter-struct/releases)
 
-Various derive macros for trait implementations betwen two structs.
+A `#[derive()]` macro for various trait implementations between two structs.
 
 Please read the **known caveats** section before using this crate!
 It's not trivial to implement code for two structs in the same codebase.
 
-### Planned features: 
+Also note that this crate is in an early development phase.
+The crate is already properly tested, but bugs might still be there.
+
+## Features:
 
 - [ ] PartialEq
-- [x] StructMerge
-- [x] StructMergeRef
+- [x] Merge
+- [x] MergeRef
 - [x] Into - A standard `From/Into` impl between two structs.
 - [x] IntoDefault - `From/Into`, but use `Default` on the target for unknown fields.
+- [ ] Field attributes to customize the behavior of our traits.
+    * [ ] `unchecked` Ignore any type checks done by inter-struct and let the compiler handle errors.
+    * [ ] `rename` Similar to serde's rename, map a field to another named field.
+    * [ ] `ignore` Ignore this field in the type generation.
 
-### StructMerge
+## Merge
 
 ```rust,ignore
 /// Merge another struct into Self whilst consuming it.
@@ -30,8 +37,7 @@ pub trait StructMerge<Src> {
 }
 ```
 
-
-This following code is an example on how to use the `InterStruct` derive macro for implementing the `StructMerge` trait between to structs.
+This following code is an example on how to use the `InterStruct` derive macro for implementing the `StructMerge` trait between two structs.
 
 ```rust,ignore
 use inter_struct::prelude::*;
@@ -42,13 +48,13 @@ pub struct Target {
     pub optional: String,
     /// This field won't be touched as the macro cannot find a
     /// respective `ignored` field in the `Source` struct.
-    pub ignored: Option<String>,
+    pub ignored: String,
 }
 
 /// A struct with both an identical and an optional field type.
 /// Note that the path to `Target` must always be fully qualifying.
 #[derive(InterStruct)]
-#[merge("crate::structs::Target")]
+#[merge("crate::Target")]
 pub struct Source {
     pub normal: String,
     pub optional: Option<String>,
@@ -79,21 +85,61 @@ fn main() {
 ```
 
 
+## Into
+
+
+This following code is an example on how to use the `InterStruct` derive macro for implementing `Into` between two structs.
+
+```rust,ignore
+use inter_struct::prelude::*;
+
+/// The target struct we'll convert our `Source` struct into.
+pub struct Target {
+    pub normal: String,
+    pub optional: String,
+}
+
+#[derive(InterStruct)]
+// Note that the path to `Target` must always be fully qualifying.
+#[into("crate::Target")]
+pub struct Source {
+    pub normal: String,
+    pub optional: Option<String>,
+    /// This field doesn't exist in the target, hence it'll be ignored.
+    pub ignored: String,
+}
+
+fn main() {
+    let source = Source {
+        /// Has the same type as Target::normal
+        normal: "source".to_string(),
+        /// Wraps Target::optional in an Option
+        optional: Some("source".to_string()),
+        ignored: "source".to_string(),
+    };
+
+    // Merge the `Source` struct into target.
+    let target: Target = source.into();
+    assert_eq!(target.normal, "source".to_string());
+    assert_eq!(target.optional, Some("source".to_string()));
+}
+```
 
 ## Known caveats
 
-The main problems in this crate come from module resolution during.
-There's no official way to resolve modules or types in the the procedural macro stage, which is why this crate only supports specific cases.
-
-It's designed to work in this environment:
+Inter-struct is designed to work in this environment:
 
 - In the scope of a single crate. Cross-crate usage won't work.
 - In the main `src` folder of the crate. Integration tests and examples aren't supported.
 
-Depending on your crate's structure, the module resolution might not work as expected.
-As we're creating safe and valid Rust code the compiler will thrown an error if any problems arise.
+The main problems in this crate come from the fact that there's no official way to resolve modules or types in the the procedural macro stage.
 
-Limitations in type resolution might also lead to wrong code generation for types that are obscured by type aliases, but the compiler should still throw errors in those cases.
+Due to this limitation, inter-struct isn't capable of ensuring the equality of two types.
+As a result, it might create false negative compile errors, even though the types might be compatible.
+This might happen if, for instance, types are obscured via an alias or if a type can be automatically dereferenced into another type.
+
+However, as we're creating safe and valid Rust code, the compiler will thrown an error if any type problems arise.
+
 
 #### Not yet solved problems
 
@@ -113,9 +159,9 @@ These are problems that can probably be solved but they're non-trivial.
 #### Unsolvable problems
 
 These are problems that are either impossible to solve or very infeasible.
-For instance, something infeasible would be to parse all files and to do a full type resolution of a given crate.
-That would be a job for the compiler in later stages.
+For instance, something infeasible would be to parse all files for a full type resolution of a given crate.
+That would be a job for the compiler in a later stage.
 
 - Structs that are altered or generated by other macros.
-- Type aliases. E.g. `type test = Option<String>` won't be detected as an Option.
-    The current check for `Option` fields is a literal check for the `Option` token.
+- Type comparison and type resolution. E.g. `type test = Option<String>` won't be detected as optional.
+    The current type checks are literal comparisons of the type tokens.

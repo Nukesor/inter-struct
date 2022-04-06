@@ -6,9 +6,9 @@ pub struct InModFile {
     pub field: String,
 }
 
-/// A simple test struct, which
-#[derive(InterStruct)]
-#[into(["crate::RootLevelFile", "crate::path::InModFile",  "crate::path::file::InNormalFile"])]
+/// A simple test struct, which ensures that various path resolutions work as expected
+#[derive(StructInto)]
+#[struct_into(["crate::RootLevelFile", "crate::path::InModFile",  "crate::path::file::InNormalFile"])]
 pub struct TestStruct {
     pub field: String,
 }

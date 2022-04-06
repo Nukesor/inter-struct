@@ -1,8 +1,8 @@
 use inter_struct::prelude::*;
 
 /// This should produce a compile errors, as the field types for `other` are different.
-#[derive(InterStruct)]
-#[merge("crate::MergeStruct")]
+#[derive(StructMerge)]
+#[struct_merge("crate::MergeStruct")]
 pub struct FromStruct {
     pub normal: i32,
     pub optional: i32,

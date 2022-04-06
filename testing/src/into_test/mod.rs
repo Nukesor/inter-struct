@@ -1,13 +1,13 @@
 #![allow(clippy::new_without_default)]
 
-use inter_struct::InterStruct;
+use inter_struct::prelude::*;
 
 mod into;
 mod into_default;
 
-#[derive(InterStruct)]
-#[into("crate::into_test::IntoStruct")]
-#[into_default("crate::into_test::IntoDefaultStruct")]
+#[derive(StructInto, StructIntoDefault)]
+#[struct_into("crate::into_test::IntoStruct")]
+#[struct_into_default("crate::into_test::IntoDefaultStruct")]
 pub struct FromStruct {
     pub normal: String,
     pub optional: Option<String>,

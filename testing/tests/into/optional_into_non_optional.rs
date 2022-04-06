@@ -1,8 +1,8 @@
-use inter_struct::InterStruct;
+use inter_struct::prelude::*;
 
 /// This should crash, since the generated initializer for IntoStruct will be incomplete.
-#[derive(InterStruct)]
-#[into("crate::IntoStruct")]
+#[derive(StructInto)]
+#[struct_into("crate::IntoStruct")]
 pub struct FromStruct {
     pub normal: Option<String>,
     pub optional: Option<Option<String>>,

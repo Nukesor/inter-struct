@@ -1,9 +1,10 @@
+use error::err;
 use generate::generate_impl;
 use module::get_struct_from_path;
 use path::{get_root_src_path, parse_input_paths};
 use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TokenStream2;
-use syn::{parse_macro_input, Expr, ItemStruct, Path};
+use syn::{parse_macro_input, Attribute, Expr, ItemStruct, Path};
 
 mod error;
 mod generate;
@@ -12,6 +13,12 @@ mod path;
 
 #[cfg(feature = "debug")]
 mod debug;
+
+pub(crate) struct Parameters {
+    pub src_struct: ItemStruct,
+    pub target_path: Path,
+    pub target_struct: ItemStruct,
+}
 
 /// This enum is used to differentiate between the different implementations of the InterStruct
 /// derive macro.
@@ -22,13 +29,7 @@ enum Mode {
     IntoDefault,
 }
 
-pub(crate) struct Parameters {
-    pub src_struct: ItemStruct,
-    pub target_path: Path,
-    pub target_struct: ItemStruct,
-}
-
-/// Implement various InterStruct traits on this struct.
+/// Implement the StructMerge trait on this struct.
 ///
 /// `struct.rs`
 /// ```rust, ignore
@@ -38,13 +39,8 @@ pub(crate) struct Parameters {
 ///     pub test: String,
 /// }
 ///
-/// pub struct OtherTarget {
-///     pub test: String,
-/// }
-///
-/// #[derive(InterStruct)]
-/// #[merge_ref(["crate::structs::Target", "crate:structs::OtherTarget"])]
-/// #[merge("crate::structs::YetAnotherTarget")]
+/// #[derive(StructMerge)]
+/// #[struct_merge("crate::structs::Target")]
 /// pub struct Test {
 ///     pub test: String,
 /// }
@@ -56,8 +52,8 @@ pub(crate) struct Parameters {
 ///
 /// Eiter a single path or a list of paths can be specified.
 /// The traits will then be implemented for each given target struct.
-#[proc_macro_derive(InterStruct, attributes(merge, merge_ref, into, into_default))]
-pub fn inter_struct(struct_ast: TokenStream) -> TokenStream {
+#[proc_macro_derive(StructMerge, attributes(struct_merge))]
+pub fn struct_merge(struct_ast: TokenStream) -> TokenStream {
     // Parse the main macro input as a struct.
     // We work on a clone of the struct ast.
     // That way we don't have to parse it again, when we return it lateron.
@@ -70,8 +66,210 @@ pub fn inter_struct(struct_ast: TokenStream) -> TokenStream {
         Err(err) => return TokenStream::from(err),
     };
 
-    let mut all_impls = Vec::new();
+    // Check if we can find the src root path of this crate.
+    // Return early if it doesn't exist.
+    let attribute = match parse_attribute(&src_struct, "StructMerge", "struct_merge") {
+        Ok(attribute) => attribute,
+        Err(err) => return TokenStream::from(err),
+    };
 
+    let attribute_args = TokenStream::from(attribute.tokens.clone());
+    let parsed_args = parse_macro_input!(attribute_args as Expr);
+
+    let impls = inter_struct_base(&src_root_path, &src_struct, parsed_args, Mode::Merge);
+
+    // Merge all generated pieces of the code with the original unaltered struct.
+    let mut tokens = TokenStream::new();
+    tokens.extend(impls.into_iter().map(TokenStream::from));
+
+    #[cfg(feature = "debug")]
+    println!("StructMerge impl: {}", tokens.to_string());
+
+    tokens
+}
+
+/// Implement the `StructMergeRef` trait on this struct.
+///
+/// `struct.rs`
+/// ```rust, ignore
+/// use inter_struct::prelude::*;
+///
+/// pub struct Target {
+///     pub test: String,
+/// }
+///
+/// #[derive(StructMergeRef)]
+/// #[struct_merge_ref(["crate::structs::Target"])]
+/// pub struct Test {
+///     pub test: String,
+/// }
+/// ```
+///
+/// A target struct's paths has to be
+/// - contained in this crate.
+/// - relative to the current crate.
+///
+/// Eiter a single path or a list of paths can be specified.
+/// The traits will then be implemented for each given target struct.
+#[proc_macro_derive(StructMergeRef, attributes(struct_merge_ref))]
+pub fn struct_merge_ref(struct_ast: TokenStream) -> TokenStream {
+    // Parse the main macro input as a struct.
+    // We work on a clone of the struct ast.
+    // That way we don't have to parse it again, when we return it lateron.
+    let src_struct = parse_macro_input!(struct_ast as ItemStruct);
+
+    // Check if we can find the src root path of this crate.
+    // Return early if it doesn't exist.
+    let src_root_path = match get_root_src_path(&src_struct) {
+        Ok(path) => path,
+        Err(err) => return TokenStream::from(err),
+    };
+
+    // Check if we can find the src root path of this crate.
+    // Return early if it doesn't exist.
+    let attribute = match parse_attribute(&src_struct, "StructMergeRef", "struct_merge_ref") {
+        Ok(attribute) => attribute,
+        Err(err) => return TokenStream::from(err),
+    };
+
+    let attribute_args = TokenStream::from(attribute.tokens.clone());
+    let parsed_args = parse_macro_input!(attribute_args as Expr);
+
+    let impls = inter_struct_base(&src_root_path, &src_struct, parsed_args, Mode::MergeRef);
+
+    // Merge all generated pieces of the code with the original unaltered struct.
+    let mut tokens = TokenStream::new();
+    tokens.extend(impls.into_iter().map(TokenStream::from));
+
+    #[cfg(feature = "debug")]
+    println!("StructMergeRef impl: {}", tokens.to_string());
+
+    tokens
+}
+
+/// Implement the `Into` trait on this struct.
+///
+/// `struct.rs`
+/// ```rust, ignore
+/// use inter_struct::prelude::*;
+///
+/// pub struct Target {
+///     pub test: String,
+/// }
+///
+/// #[derive(StructInto)]
+/// #[struct_into(["crate::structs::Target"])]
+/// pub struct Test {
+///     pub test: String,
+/// }
+/// ```
+///
+/// A target struct's paths has to be
+/// - contained in this crate.
+/// - relative to the current crate.
+///
+/// Eiter a single path or a list of paths can be specified.
+/// The traits will then be implemented for each given target struct.
+#[proc_macro_derive(StructInto, attributes(struct_into))]
+pub fn struct_into(struct_ast: TokenStream) -> TokenStream {
+    // Parse the main macro input as a struct.
+    // We work on a clone of the struct ast.
+    // That way we don't have to parse it again, when we return it lateron.
+    let src_struct = parse_macro_input!(struct_ast as ItemStruct);
+
+    // Check if we can find the src root path of this crate.
+    // Return early if it doesn't exist.
+    let src_root_path = match get_root_src_path(&src_struct) {
+        Ok(path) => path,
+        Err(err) => return TokenStream::from(err),
+    };
+
+    // Check if we can find the src root path of this crate.
+    // Return early if it doesn't exist.
+    let attribute = match parse_attribute(&src_struct, "StructInto", "struct_into") {
+        Ok(attribute) => attribute,
+        Err(err) => return TokenStream::from(err),
+    };
+
+    let attribute_args = TokenStream::from(attribute.tokens.clone());
+    let parsed_args = parse_macro_input!(attribute_args as Expr);
+
+    let impls = inter_struct_base(&src_root_path, &src_struct, parsed_args, Mode::Into);
+
+    // Merge all generated pieces of the code with the original unaltered struct.
+    let mut tokens = TokenStream::new();
+    tokens.extend(impls.into_iter().map(TokenStream::from));
+
+    #[cfg(feature = "debug")]
+    println!("StructInto impl: {}", tokens.to_string());
+
+    tokens
+}
+
+/// Implement the `Into` trait on this struct with `Default::default` for missing fields.
+///
+/// `struct.rs`
+/// ```rust, ignore
+/// use inter_struct::prelude::*;
+///
+/// pub struct Target {
+///     pub test: String,
+/// }
+///
+/// #[derive(StructIntoDefault)]
+/// #[struct_into_default(["crate::structs::Target"])]
+/// pub struct Test {
+///     pub test: String,
+/// }
+/// ```
+///
+/// A target struct's paths has to be
+/// - contained in this crate.
+/// - relative to the current crate.
+///
+/// Eiter a single path or a list of paths can be specified.
+/// The traits will then be implemented for each given target struct.
+#[proc_macro_derive(StructIntoDefault, attributes(struct_into_default))]
+pub fn struct_into_default(struct_ast: TokenStream) -> TokenStream {
+    // Parse the main macro input as a struct.
+    // We work on a clone of the struct ast.
+    // That way we don't have to parse it again, when we return it lateron.
+    let src_struct = parse_macro_input!(struct_ast as ItemStruct);
+
+    // Check if we can find the src root path of this crate.
+    // Return early if it doesn't exist.
+    let src_root_path = match get_root_src_path(&src_struct) {
+        Ok(path) => path,
+        Err(err) => return TokenStream::from(err),
+    };
+
+    // Check if we can find the src root path of this crate.
+    // Return early if it doesn't exist.
+    let attribute = match parse_attribute(&src_struct, "StructInto", "struct_into_default") {
+        Ok(attribute) => attribute,
+        Err(err) => return TokenStream::from(err),
+    };
+
+    let attribute_args = TokenStream::from(attribute.tokens.clone());
+    let parsed_args = parse_macro_input!(attribute_args as Expr);
+
+    let impls = inter_struct_base(&src_root_path, &src_struct, parsed_args, Mode::IntoDefault);
+
+    // Merge all generated pieces of the code with the original unaltered struct.
+    let mut tokens = TokenStream::new();
+    tokens.extend(impls.into_iter().map(TokenStream::from));
+
+    #[cfg(feature = "debug")]
+    println!("StructInto impl: {}", tokens.to_string());
+
+    tokens
+}
+
+fn parse_attribute(
+    src_struct: &ItemStruct,
+    derive_name: &str,
+    name: &str,
+) -> Result<Attribute, TokenStream2> {
     for attribute in src_struct.attrs.iter() {
         let path = &attribute.path;
 
@@ -80,30 +278,19 @@ pub fn inter_struct(struct_ast: TokenStream) -> TokenStream {
         if path.segments.len() != 1 {
             continue;
         }
+
         let attribute_name = path.segments.first().unwrap().ident.to_string();
-        let mode = match attribute_name.as_str() {
-            "merge" => Mode::Merge,
-            "merge_ref" => Mode::MergeRef,
-            "into" => Mode::Into,
-            "into_default" => Mode::IntoDefault,
-            _ => continue,
-        };
-
-        let attribute_args = TokenStream::from(attribute.tokens.clone());
-        let parsed_args = parse_macro_input!(attribute_args as Expr);
-
-        let mut impls = inter_struct_base(&src_root_path, &src_struct, parsed_args, mode);
-        all_impls.append(&mut impls);
+        if name == attribute_name.as_str() {
+            return Ok(attribute.clone());
+        }
     }
 
-    // Merge all generated pieces of the code with the original unaltered struct.
-    let mut tokens = TokenStream::new();
-    tokens.extend(all_impls.into_iter().map(TokenStream::from));
-
-    #[cfg(feature = "debug")]
-    println!("{}", tokens.to_string());
-
-    tokens
+    Err(err!(
+        src_struct,
+        "{} requires the '{}' attribute.",
+        derive_name,
+        name
+    ))
 }
 
 fn inter_struct_base(

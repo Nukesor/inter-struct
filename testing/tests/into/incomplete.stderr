@@ -1,5 +1,5 @@
 error[E0063]: missing field `optional` in initializer of `IntoStruct`
- --> tests/into/incomplete.rs:5:8
+ --> tests/into/incomplete.rs:5:15
   |
-5 | #[into("crate::IntoStruct")]
-  |        ^^^^^^^^^^^^^^^^^^^ missing `optional`
+5 | #[struct_into("crate::IntoStruct")]
+  |               ^^^^^^^^^^^^^^^^^^^ missing `optional`

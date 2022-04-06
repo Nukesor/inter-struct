@@ -1,6 +1,6 @@
 #![allow(clippy::new_without_default)]
 
-use inter_struct::InterStruct;
+use inter_struct::prelude::*;
 mod merge;
 mod merge_ref;
 
@@ -22,9 +22,9 @@ impl Base {
 
 /// A struct with identical field types.
 /// Note that the path to `Base` is always a fully qualifying path.
-#[derive(InterStruct, Clone)]
-#[merge("crate::merge_test::Base")]
-#[merge_ref("crate::merge_test::Base")]
+#[derive(StructMerge, StructMergeRef, Clone)]
+#[struct_merge("crate::merge_test::Base")]
+#[struct_merge_ref("crate::merge_test::Base")]
 pub struct Identical {
     pub normal: String,
     pub optional: Option<String>,
@@ -41,9 +41,9 @@ impl Identical {
 
 /// A struct with the same field types as [Base], but the're optional.
 /// Note that the path to `Base` is always a fully qualifying path.
-#[derive(InterStruct, Clone)]
-#[merge("crate::merge_test::Base")]
-#[merge_ref("crate::merge_test::Base")]
+#[derive(StructMerge, StructMergeRef, Clone)]
+#[struct_merge("crate::merge_test::Base")]
+#[struct_merge_ref("crate::merge_test::Base")]
 pub struct Optional {
     pub normal: Option<String>,
     pub optional: Option<Option<String>>,
@@ -60,9 +60,9 @@ impl Optional {
 
 /// A struct with both, identical and optional field types.
 /// Note that the path to `Base` is always a fully qualifying path.
-#[derive(InterStruct, Clone)]
-#[merge("crate::merge_test::Base")]
-#[merge_ref("crate::merge_test::Base")]
+#[derive(StructMerge, StructMergeRef, Clone)]
+#[struct_merge("crate::merge_test::Base")]
+#[struct_merge_ref("crate::merge_test::Base")]
 pub struct Mixed {
     pub normal: String,
     pub optional: Option<Option<String>>,

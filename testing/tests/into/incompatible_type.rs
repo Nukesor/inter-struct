@@ -1,8 +1,8 @@
-use inter_struct::InterStruct;
+use inter_struct::prelude::*;
 
 /// This should crash, since the types for the IntoStruct are incompatible.
-#[derive(InterStruct)]
-#[into("crate::IntoStruct")]
+#[derive(StructInto)]
+#[struct_into("crate::IntoStruct")]
 pub struct FromStruct {
     pub normal: i32,
     pub optional: Option<i32>,

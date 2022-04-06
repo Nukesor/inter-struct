@@ -11,7 +11,7 @@ error: Type 'Option < i32 > cannot be merged into field of type 'String'.
   |                   ^^^^^^
 
 error[E0063]: missing fields `normal` and `optional` in initializer of `IntoStruct`
- --> tests/into/incompatible_type.rs:5:8
+ --> tests/into/incompatible_type.rs:5:15
   |
-5 | #[into("crate::IntoStruct")]
-  |        ^^^^^^^^^^^^^^^^^^^ missing `normal` and `optional`
+5 | #[struct_into("crate::IntoStruct")]
+  |               ^^^^^^^^^^^^^^^^^^^ missing `normal` and `optional`

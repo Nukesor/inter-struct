@@ -1,8 +1,8 @@
-use inter_struct::InterStruct;
+use inter_struct::prelude::*;
 
 /// This shouldn't compile, as the path shows to an invalid location.
-#[derive(InterStruct)]
-#[into("crate::some_path::IntoStruct")]
+#[derive(StructInto)]
+#[struct_into("crate::some_path::IntoStruct")]
 pub struct FromStruct {
     pub normal: String,
 }

@@ -11,7 +11,7 @@ error: Inter-struct cannot 'into' an optional into a non-optional value.
   |                          ^^^^^^
 
 error[E0063]: missing fields `normal` and `optional` in initializer of `IntoStruct`
- --> tests/into/optional_into_non_optional.rs:5:8
+ --> tests/into/optional_into_non_optional.rs:5:15
   |
-5 | #[into("crate::IntoStruct")]
-  |        ^^^^^^^^^^^^^^^^^^^ missing `normal` and `optional`
+5 | #[struct_into("crate::IntoStruct")]
+  |               ^^^^^^^^^^^^^^^^^^^ missing `normal` and `optional`

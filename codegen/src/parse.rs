@@ -1,11 +1,41 @@
-use std::path::PathBuf;
-
 use proc_macro2::TokenStream;
 #[cfg(feature = "debug")]
 use quote::ToTokens;
-use syn::{Expr, ExprLit, ItemStruct, Lit, Path};
+use syn::{Attribute, Expr, ExprLit, ItemStruct, Lit, Path};
 
-use crate::error::*;
+use crate::error::err;
+
+/// Parse the main attribute of the derive macro.
+///
+/// It basically parses all attributes and returns the attribute that matches `name`.
+/// If there's no matching attribute, an appropriate compiler error message is thrown.
+pub fn attribute(
+    src_struct: &ItemStruct,
+    derive_name: &str,
+    name: &str,
+) -> Result<Attribute, TokenStream> {
+    for attribute in src_struct.attrs.iter() {
+        let path = &attribute.path;
+
+        // Make sure we don't have a multi-segment path in our attribute.
+        // It's probably an attribute from a different macro.
+        if path.segments.len() != 1 {
+            continue;
+        }
+
+        let attribute_name = path.segments.first().unwrap().ident.to_string();
+        if name == attribute_name.as_str() {
+            return Ok(attribute.clone());
+        }
+    }
+
+    Err(err!(
+        src_struct.ident,
+        "{} requires the '{}' attribute.",
+        derive_name,
+        name
+    ))
+}
 
 /// Extract the input paths from the macro arguments.
 ///
@@ -13,7 +43,7 @@ use crate::error::*;
 /// I.e.
 /// - `merge_struct("crate::some_path::Struct")`
 /// - `merge_struct(["crate::some::Struct", "crate::some_other::Struct"])`
-pub fn parse_input_paths(args: Expr) -> Result<Vec<Path>, TokenStream> {
+pub fn input_paths(args: Expr) -> Result<Vec<Path>, TokenStream> {
     let expr_paren = if let Expr::Paren(expr_paren) = args {
         expr_paren
     } else {
@@ -66,42 +96,5 @@ pub fn parse_input_paths(args: Expr) -> Result<Vec<Path>, TokenStream> {
             "inter_struct's macro parameters should be either a single path {} ",
             "or a vector of paths as str, such as '[\"crate::your::path\"]'."
         )),
-    }
-}
-
-/// Get the root path of the crate that's currently using this proc macro.
-/// This is done via the `CARGO_MANIFEST_DIR` variable, that's always supplied by cargo and
-/// represents the directory containing the `Cargo.toml` for the current crate.
-pub fn get_root_src_path(span: &ItemStruct) -> Result<PathBuf, TokenStream> {
-    match std::env::var("CARGO_MANIFEST_DIR") {
-        Err(error) => {
-            return Err(err!(
-                span,
-                "Couldn't read CARGO_MANIFEST_DIR environment variable in InterStruct: {}",
-                error
-            ));
-        }
-        Ok(path) => {
-            let mut path = PathBuf::from(path);
-            if !path.exists() {
-                return Err(err!(
-                    span,
-                    "CARGO_MANIFEST_DIR path doesn't exist in InterStruct: {:?}",
-                    path
-                ));
-            }
-
-            // TODO: We expect the source tree to start in `$CARGO_MANIFEST_DIR/src`.
-            // For everything else, we would have to manually parse the Cargo manifest.
-            path.push("src");
-            if !path.exists() {
-                return Err(err!(
-                    span,
-                    "InterStruct currently expects the source to be located in $CARGO_MANIFEST_DIR/src"
-                ));
-            }
-
-            Ok(path)
-        }
     }
 }

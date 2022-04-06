@@ -29,7 +29,7 @@ fn compile_error() {
     std::fs::copy(stub_declarations, "../target/tests/testing/src/lib.rs")
         .expect("Failed to copy stub lib.rs");
 
-    // Uncomment if you want to test a special
+    // Uncomment and adjust if you want to test a special test.
     //let single = Some("tests/merge/incompatible_type.rs".to_string());
     let single = None::<String>;
     if let Some(single) = single {
@@ -39,5 +39,6 @@ fn compile_error() {
         t.compile_fail("tests/merge/*.rs");
         t.compile_fail("tests/merge_ref/*.rs");
         t.compile_fail("tests/path/*.rs");
+        t.compile_fail("tests/attributes/*.rs");
     }
 }

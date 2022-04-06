@@ -1,0 +1,23 @@
+error: StructInto requires the 'struct_into' attribute.
+ --> tests/attributes/not_existent.rs:5:12
+  |
+5 | pub struct FromStruct {
+  |            ^^^^^^^^^^
+
+error: StructMerge requires the 'struct_merge' attribute.
+ --> tests/attributes/not_existent.rs:5:12
+  |
+5 | pub struct FromStruct {
+  |            ^^^^^^^^^^
+
+error: StructMergeRef requires the 'struct_merge_ref' attribute.
+ --> tests/attributes/not_existent.rs:5:12
+  |
+5 | pub struct FromStruct {
+  |            ^^^^^^^^^^
+
+error: StructInto requires the 'struct_into_default' attribute.
+ --> tests/attributes/not_existent.rs:5:12
+  |
+5 | pub struct FromStruct {
+  |            ^^^^^^^^^^

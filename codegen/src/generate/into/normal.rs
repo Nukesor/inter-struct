@@ -5,7 +5,7 @@ use syn::Field;
 use crate::error::*;
 use crate::generate::field::*;
 use crate::generate::types::*;
-use crate::Parameters;
+use crate::generate::*;
 
 /// Generate the [std::convert::From] for given structs.
 pub(crate) fn impl_into(

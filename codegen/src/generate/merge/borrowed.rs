@@ -5,7 +5,7 @@ use syn::Field;
 use crate::error::*;
 use crate::generate::field::*;
 use crate::generate::types::*;
-use crate::Parameters;
+use crate::generate::Parameters;
 
 /// Generate the implementation of [inter_struct::merge::StructMergeRef] for given structs.
 pub(crate) fn impl_borrowed(params: &Parameters, fields: Vec<(Field, Field)>) -> TokenStream {

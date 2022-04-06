@@ -15,6 +15,14 @@ pub struct FromStruct {
     pub another_ignored_field: Option<String>,
 }
 
+#[derive(StructInto, StructIntoDefault)]
+#[struct_into("crate::into_test::IntoStruct")]
+#[struct_into_default("crate::into_test::IntoDefaultStruct")]
+pub struct FromStructNonOptional {
+    pub normal: String,
+    pub optional: String,
+}
+
 impl FromStruct {
     pub fn new() -> Self {
         FromStruct {
@@ -22,6 +30,15 @@ impl FromStruct {
             optional: Some("from".to_string()),
             ignored_field: "from".to_string(),
             another_ignored_field: Some("from".to_string()),
+        }
+    }
+}
+
+impl FromStructNonOptional {
+    pub fn new() -> Self {
+        FromStructNonOptional {
+            normal: "from_non_optional".to_string(),
+            optional: "from_non_optional".to_string(),
         }
     }
 }

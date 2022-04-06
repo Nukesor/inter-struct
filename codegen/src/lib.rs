@@ -25,13 +25,6 @@ use proc_macro::TokenStream;
 ///     pub test: String,
 /// }
 /// ```
-///
-/// A target struct's paths has to be
-/// - contained in this crate.
-/// - relative to the current crate.
-///
-/// Eiter a single path or a list of paths can be specified.
-/// The traits will then be implemented for each given target struct.
 #[proc_macro_derive(StructInto, attributes(struct_into))]
 pub fn struct_into(struct_ast: TokenStream) -> TokenStream {
     generate::into::struct_into_inner(struct_ast)
@@ -54,12 +47,6 @@ pub fn struct_into(struct_ast: TokenStream) -> TokenStream {
 /// }
 /// ```
 ///
-/// A target struct's paths has to be
-/// - contained in this crate.
-/// - relative to the current crate.
-///
-/// Eiter a single path or a list of paths can be specified.
-/// The traits will then be implemented for each given target struct.
 #[proc_macro_derive(StructIntoDefault, attributes(struct_into_default))]
 pub fn struct_into_default(struct_ast: TokenStream) -> TokenStream {
     generate::into::struct_into_default_inner(struct_ast)
@@ -81,13 +68,6 @@ pub fn struct_into_default(struct_ast: TokenStream) -> TokenStream {
 ///     pub test: String,
 /// }
 /// ```
-///
-/// A target struct's paths has to be
-/// - contained in this crate.
-/// - relative to the current crate.
-///
-/// Eiter a single path or a list of paths can be specified.
-/// The traits will then be implemented for each given target struct.
 #[proc_macro_derive(StructMerge, attributes(struct_merge))]
 pub fn struct_merge(struct_ast: TokenStream) -> TokenStream {
     generate::merge::struct_merge_inner(struct_ast)
@@ -109,13 +89,6 @@ pub fn struct_merge(struct_ast: TokenStream) -> TokenStream {
 ///     pub test: String,
 /// }
 /// ```
-///
-/// A target struct's paths has to be
-/// - contained in this crate.
-/// - relative to the current crate.
-///
-/// Eiter a single path or a list of paths can be specified.
-/// The traits will then be implemented for each given target struct.
 #[proc_macro_derive(StructMergeRef, attributes(struct_merge_ref))]
 pub fn struct_merge_ref(struct_ast: TokenStream) -> TokenStream {
     generate::merge::struct_merge_ref_inner(struct_ast)

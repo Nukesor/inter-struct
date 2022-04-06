@@ -29,7 +29,7 @@ pub fn struct_merge_inner(struct_ast: TokenStream) -> TokenStream {
         Err(err) => return TokenStream::from(err),
     };
 
-    let attribute_args = TokenStream::from(attribute.tokens.clone());
+    let attribute_args = TokenStream::from(attribute.tokens);
     let parsed_args = parse_macro_input!(attribute_args as Expr);
 
     let impls = inter_struct_base(&src_root_path, &src_struct, parsed_args, Mode::Merge);
@@ -65,7 +65,7 @@ pub fn struct_merge_ref_inner(struct_ast: TokenStream) -> TokenStream {
         Err(err) => return TokenStream::from(err),
     };
 
-    let attribute_args = TokenStream::from(attribute.tokens.clone());
+    let attribute_args = TokenStream::from(attribute.tokens);
     let parsed_args = parse_macro_input!(attribute_args as Expr);
 
     let impls = inter_struct_base(&src_root_path, &src_struct, parsed_args, Mode::MergeRef);

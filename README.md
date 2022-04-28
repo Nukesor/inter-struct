@@ -17,15 +17,10 @@ The crate is already properly tested, but bugs might still be there and the API 
 
 ## Features:
 
-- [ ] PartialEq
-- [x] Merge
-- [x] MergeRef
-- [x] Into - A standard `From/Into` impl between two structs.
-- [x] IntoDefault - `From/Into`, but use `Default` on the target for unknown fields.
-- [ ] Field attributes to customize the behavior of our traits.
-    * [ ] `unchecked` Ignore any type checks done by inter-struct and let the compiler handle errors.
-    * [ ] `rename` Similar to serde's rename, map a field to another named field.
-    * [ ] `ignore` Ignore this field in the type generation.
+- Merge - Merge a struct into another, while consuming itself.
+- MergeRef - Merge a struct into another by reference. The struct must implement `Clone`.
+- Into - A standard `From/Into` impl between two structs.
+- IntoDefault - `From/Into`, but use `Default` on the target for unknown fields.
 
 ## Merge
 
@@ -39,7 +34,7 @@ pub trait StructMerge<Src> {
 }
 ```
 
-This following code is an example on how to use the `InterStruct` derive macro for implementing the `StructMerge` trait between two structs.
+This following code is an example on how to use the `StructMerge` derive macro for implementing the `StructMerge` trait between two structs.
 
 ```rust,ignore
 use inter_struct::prelude::*;
@@ -55,7 +50,7 @@ pub struct Target {
 
 /// A struct with both an identical and an optional field type.
 /// Note that the path to `Target` must always be fully qualifying.
-#[derive(InterStruct)]
+#[derive(StructMerge)]
 #[merge("crate::Target")]
 pub struct Source {
     pub normal: String,
@@ -90,7 +85,7 @@ fn main() {
 ## Into
 
 
-This following code is an example on how to use the `InterStruct` derive macro for implementing `Into` between two structs.
+This following code is an example on how to use the `StructInto` derive macro for implementing `Into` between two structs.
 
 ```rust,ignore
 use inter_struct::prelude::*;

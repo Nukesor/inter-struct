@@ -21,4 +21,4 @@ debug = ["inter-struct-codegen/debug"]
 members = ["codegen", "testing"]
 
 [dependencies]
-inter-struct-codegen = { version = "0.1", path = "codegen" }
+inter-struct-codegen = { version = "0.2", path = "codegen" }

@@ -1,4 +1,4 @@
-error: Failed to open file "$WORKSPACE/target/tests/testing/src/some_path.rs": Os { code: 2, kind: NotFound, message: "No such file or directory" }
+error: Failed to open file "$WORKSPACE/target/tests/trybuild/testing/src/some_path.rs": Os { code: 2, kind: NotFound, message: "No such file or directory" }
  --> tests/path/not_existent.rs:5:15
   |
 5 | #[struct_into("crate::some_path::IntoStruct")]

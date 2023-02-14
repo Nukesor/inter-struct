@@ -31,10 +31,12 @@ pub fn get_root_src_path(span: &ItemStruct) -> Result<PathBuf, TokenStream> {
             // For everything else, we would have to manually parse the Cargo manifest.
             path.push("src");
             if !path.exists() {
-                return Err(err!(
-                    span,
-                    "InterStruct currently expects the source to be located in $CARGO_MANIFEST_DIR/src"
-                ));
+                return Err(
+                    err!(
+                        span,
+                        "InterStruct currently expects the source to be located in $CARGO_MANIFEST_DIR/src: {:?}", path
+                    )
+                );
             }
 
             Ok(path)

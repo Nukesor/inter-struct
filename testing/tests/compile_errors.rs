@@ -22,12 +22,15 @@ fn compile_error() {
     // targets in the InterStruct test files is copied to `$TESTDIR/src/lib.rs`.
     //
     // Otherwise InterStruct won't find the struct declaration it expects to find.
-    let target_dir = PathBuf::from("../target/tests/testing/src");
+    let target_dir = PathBuf::from("../target/tests/trybuild/testing/src");
     std::fs::create_dir_all(target_dir).expect("Failed to create testing project dir");
 
     let stub_declarations = PathBuf::from("./tests/stub_declarations/lib.rs");
-    std::fs::copy(stub_declarations, "../target/tests/testing/src/lib.rs")
-        .expect("Failed to copy stub lib.rs");
+    std::fs::copy(
+        stub_declarations,
+        "../target/tests/trybuild/testing/src/lib.rs",
+    )
+    .expect("Failed to copy stub lib.rs");
 
     // Uncomment and adjust if you want to test a special test.
     //let single = Some("tests/merge/incompatible_type.rs".to_string());

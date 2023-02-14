@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-#inter-struct = { path = "..", features = ["debug"] }
-inter-struct = { path = ".." }
+#inter-struct = { path = "../inter-struct", features = ["debug"] }
+inter-struct = { path = "../inter-struct" }
 
 [dev-dependencies]
 trybuild = "1"

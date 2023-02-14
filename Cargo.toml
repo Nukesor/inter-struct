@@ -1,24 +1,11 @@
-[package]
-name = "inter-struct"
-description = "Automatically generated traits for arbitrary structs."
-version = "0.2.0"
-authors = ["Arne Beer <contact@arne.beer>"]
-homepage = "https://github.com/nukesor/inter-struct"
-repository = "https://github.com/nukesor/inter-struct"
-documentation = "https://docs.rs/inter-struct/"
-license = "MIT"
-keywords = ["library", "merge", "struct", "proc-macro"]
-edition = "2021"
-
-[badges]
-maintenance = { status = "actively-developed" }
-
-[features]
-# This flag is for debugging purposes only!
-debug = ["inter-struct-codegen/debug"]
-
 [workspace]
-members = ["codegen", "testing"]
+members = ["codegen", "testing", "inter-struct"]
+exclude = ["examples/test"]
 
-[dependencies]
-inter-struct-codegen = { version = "0.2", path = "codegen" }
+[workspace.package]
+authors = ["Arne Beer <contact@arne.beer>"]
+repository = "https://github.com/nukesor/inter-struct"
+homepage = "https://github.com/nukesor/inter-struct"
+license = "MIT"
+edition = "2021"
+rust-version = "1.62"

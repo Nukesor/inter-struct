@@ -1,4 +1,4 @@
-name: Test build
+name: Tests
 
 on:
   push:
@@ -9,6 +9,7 @@ on:
       - 'Cargo.toml'
       - 'Cargo.lock'
   pull_request:
+    branches: [main]
     paths:
       - '.github/**/*'
       - '**.rs'
@@ -17,7 +18,7 @@ on:
 
 
 jobs:
-  publish:
+  test:
     name: Test on ${{ matrix.os }} for ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
     strategy:

@@ -1,5 +1,5 @@
 use proc_macro::TokenStream;
-use syn::{parse_macro_input, Expr, ItemStruct};
+use syn::{parse_macro_input, ItemStruct};
 
 use super::{inter_struct_base, Mode};
 use crate::helper::get_root_src_path;
@@ -28,8 +28,10 @@ pub fn struct_into_inner(struct_ast: TokenStream) -> TokenStream {
         Err(err) => return TokenStream::from(err),
     };
 
-    let attribute_args = TokenStream::from(attribute.tokens);
-    let parsed_args = parse_macro_input!(attribute_args as Expr);
+    let parsed_args = match attribute.parse_args() {
+        Ok(parsed_args) => parsed_args,
+        Err(err) => return err.into_compile_error().into(),
+    };
 
     let impls = inter_struct_base(&src_root_path, &src_struct, parsed_args, Mode::Into);
 
@@ -64,8 +66,10 @@ pub fn struct_into_default_inner(struct_ast: TokenStream) -> TokenStream {
         Err(err) => return TokenStream::from(err),
     };
 
-    let attribute_args = TokenStream::from(attribute.tokens);
-    let parsed_args = parse_macro_input!(attribute_args as Expr);
+    let parsed_args = match attribute.parse_args() {
+        Ok(parsed_args) => parsed_args,
+        Err(err) => return err.into_compile_error().into(),
+    };
 
     let impls = inter_struct_base(&src_root_path, &src_struct, parsed_args, Mode::IntoDefault);
 

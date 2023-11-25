@@ -1,6 +1,6 @@
 # Inter-Struct
 
-[![GitHub Actions Workflow](https://github.com/nukesor/inter-struct/workflows/Test%20build/badge.svg)](https://github.com/Nukesor/inter-struct/actions)
+[![GitHub Actions Workflow](https://github.com/nukesor/inter-struct/workflows/Tests/badge.svg)](https://github.com/Nukesor/inter-struct/actions)
 [![Crates.io](https://img.shields.io/crates/v/inter-struct)](https://crates.io/crates/inter-struct)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Downloads](https://img.shields.io/github/downloads/nukesor/inter-struct/total.svg)](https://github.com/nukesor/inter-struct/releases)

@@ -10,13 +10,11 @@ use crate::error::*;
 /// represents the directory containing the `Cargo.toml` for the current crate.
 pub fn get_root_src_path(span: &ItemStruct) -> Result<PathBuf, TokenStream> {
     match std::env::var("CARGO_MANIFEST_DIR") {
-        Err(error) => {
-            return Err(err!(
-                span,
-                "Couldn't read CARGO_MANIFEST_DIR environment variable in InterStruct: {}",
-                error
-            ));
-        }
+        Err(error) => Err(err!(
+            span,
+            "Couldn't read CARGO_MANIFEST_DIR environment variable in InterStruct: {}",
+            error
+        )),
         Ok(path) => {
             let mut path = PathBuf::from(path);
             if !path.exists() {

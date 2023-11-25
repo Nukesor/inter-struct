@@ -15,7 +15,7 @@ pub fn attribute(
     name: &str,
 ) -> Result<Attribute, TokenStream> {
     for attribute in src_struct.attrs.iter() {
-        let path = &attribute.path;
+        let path = &attribute.path();
 
         // Make sure we don't have a multi-segment path in our attribute.
         // It's probably an attribute from a different macro.
@@ -44,17 +44,6 @@ pub fn attribute(
 /// - `merge_struct("crate::some_path::Struct")`
 /// - `merge_struct(["crate::some::Struct", "crate::some_other::Struct"])`
 pub fn input_paths(args: Expr) -> Result<Vec<Path>, TokenStream> {
-    let expr_paren = if let Expr::Paren(expr_paren) = args {
-        expr_paren
-    } else {
-        #[cfg(feature = "debug")]
-        println!("Expected group found: {:?}", args.to_token_stream());
-        #[cfg(feature = "debug")]
-        crate::debug::print_expr_type(args.clone());
-
-        return Err(err!(args, "Encountered unknown error while parsing args."));
-    };
-
     fn lit_to_path(expr: ExprLit) -> Result<Path, TokenStream> {
         match expr.lit {
             // Make sure we got a literal string.
@@ -72,7 +61,7 @@ pub fn input_paths(args: Expr) -> Result<Vec<Path>, TokenStream> {
         }
     }
 
-    match *expr_paren.expr {
+    match args {
         // Handle the first case of a single string containing a path.
         Expr::Lit(expr) => lit_to_path(expr).map(|path| vec![path]),
         // Handle the caes of an array of strings, containing paths.
@@ -92,7 +81,7 @@ pub fn input_paths(args: Expr) -> Result<Vec<Path>, TokenStream> {
             Ok(paths)
         }
         _ => Err(err!(
-            expr_paren,
+            args,
             "inter_struct's macro parameters should be either a single path {} ",
             "or a vector of paths as str, such as '[\"crate::your::path\"]'."
         )),

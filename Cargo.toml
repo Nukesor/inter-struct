@@ -1,6 +1,7 @@
 [workspace]
 members = ["codegen", "testing", "inter-struct"]
 exclude = ["examples/test"]
+resolver = "2"
 
 [workspace.package]
 authors = ["Arne Beer <contact@arne.beer>"]

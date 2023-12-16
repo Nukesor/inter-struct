@@ -1,7 +1,7 @@
 [package]
 name = "inter-struct"
 description = "Automatically generated traits for arbitrary structs."
-version = "0.2.0"
+version = "0.2.1"
 documentation = "https://docs.rs/inter-struct/"
 keywords = ["library", "merge", "struct", "proc-macro"]
 authors.workspace = true

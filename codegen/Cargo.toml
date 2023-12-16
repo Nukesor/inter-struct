@@ -1,7 +1,7 @@
 [package]
 name = "inter-struct-codegen"
 description = "Proc macro codegen crate for merge-struct."
-version = "0.2.0"
+version = "0.2.1"
 keywords = ["library", "merge", "struct", "macro"]
 documentation = "https://docs.rs/inter-struct-codegen/"
 authors.workspace = true

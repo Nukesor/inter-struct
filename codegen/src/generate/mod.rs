@@ -78,10 +78,10 @@ fn inter_struct_base(
 /// Known Limitations:
 /// - Error, when using different generic aliases that have same type.
 /// - Visibility of the `target` struct isn't taken into account.
-///     This might get better when module resolution is done properly.
+///   This might get better when module resolution is done properly.
 /// - Type equality cannot be properly ensured at this stage.
-///     The resulting code will still be correct though, as any type incompatibilities will be
-///     caught by the compiler anyway.
+///   The resulting code will still be correct though, as any type incompatibilities will be
+///   caught by the compiler anyway.
 pub(crate) fn generate_impl(mode: &Mode, params: Parameters) -> Result<TokenStream, TokenStream> {
     let target_fields = match params.target_struct.fields.clone() {
         Fields::Named(fields) => fields,
